@@ -491,29 +491,35 @@ var tests = [
   // { name: 'Worker GC doesn\'t affect main page', test: testJank, blocker: workerGCLoad },
   ];
 
+var newLength = 0, newTests = [];
+
 for (var i = 0; i < tests.length; i++) {
   var test = tests[i];
-  var row = document.createElement('tr');
-  var nameCell = document.createElement('td');
-  var resultCell = document.createElement('td');
-  var infoCell = document.createElement('td');
-  nameCell.className = 'testName';
-  nameCell.textContent = test.name;
-  var description = document.createElement('div');
-  description.className = 'testDescription';
-  nameCell.appendChild(description);
-  if (test.info) {
-    description.textContent = test.info;
+  if (!local.get(" "+test.name)) {
+    newTests[newLength] = test;
+    newLength++;
+    var row = document.createElement('tr');
+    var nameCell = document.createElement('td');
+    var resultCell = document.createElement('td');
+    var infoCell = document.createElement('td');
+    nameCell.className = 'testName';
+    nameCell.textContent = test.name;
+    var description = document.createElement('div');
+    description.className = 'testDescription';
+    nameCell.appendChild(description);
+    if (test.info) {
+      description.textContent = test.info;
+    }
+    resultCell.className = 'testResult';
+    test.resultCell = document.createElement('div');
+    resultCell.appendChild(test.resultCell);
+    infoCell.className = 'testInfo';
+    test.infoCell = infoCell;
+    row.appendChild(nameCell);
+    row.appendChild(resultCell);
+    row.appendChild(infoCell);
+    table.appendChild(row);
   }
-  resultCell.className = 'testResult';
-  test.resultCell = document.createElement('div');
-  resultCell.appendChild(test.resultCell);
-  infoCell.className = 'testInfo';
-  test.infoCell = infoCell;
-  row.appendChild(nameCell);
-  row.appendChild(resultCell);
-  row.appendChild(infoCell);
-  table.appendChild(row);
 }
 
 var nextTestIndex = 0;
@@ -526,13 +532,13 @@ var runNextTest = function(previousTest) {
       return;
     }
     previousTest.finished = true;
-    if (previousTest != tests[nextTestIndex - 1]) {
+    if (previousTest != newTests[nextTestIndex - 1]) {
       previousTest.infoCell.textContent = "Error: test sent results out of order";
       return;
     }
   }
   var testIndex = nextTestIndex++;
-  if (testIndex >= tests.length) {
+  if (testIndex >= newTests.length) {
     // All tests successfully completed. Report the overall score as a number out of 10.
     var scoreRatio = totalScore / totalPossibleScore;
     var score = document.getElementById('score');
@@ -545,7 +551,7 @@ var runNextTest = function(previousTest) {
     // End the test run.
     return;
   }
-  var test = tests[testIndex];
+  var test = newTests[testIndex];
   test.infoCell.textContent = '';
   test.resultCell.textContent = '⋯';
   setTimeout(function() { checkTimeout(test); }, 50000);
