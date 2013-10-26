@@ -142,10 +142,24 @@ var spinDone = true;
 workerHandlers.spin = function(e) {
   spinDone = true;
 };
+workerHandlers.gcLoad = function(e) {
+  return test.finishedMeasuring = true;
+};
 
 // We don't use getPrefixed here because we want to replace the unprefixed version with the prefixed one if it exists.
 if (worker) {
   worker.postMessage = worker.webkitPostMessage || worker.mozPostMessage || worker.oPostMessage ||worker.msPostMessage || worker.postMessage;
+}
+
+var workerGCLoad = function() {
+  if (!worker)
+    return fail(this);
+  var test = this;
+  try {
+    worker.postMessage({test: 'gcLoad'});
+  } catch(e) {
+    fail(this);
+  }
 }
 
 var checkTransferables = function() {
@@ -427,6 +441,9 @@ var tests = [
   { name: 'Image loading jank',
     info: 'Tests responsiveness during image loading.',
     test: testJank, blocker: loadGiantImage, report: ['css', 'js', 'scroll'] },
+  { name: 'Worker GC Load',
+    info: 'Tests if worker GC affects main page.',
+    test: testJank, blocker: workerGCLoad, report: ['js', 'scroll'] },
   // These tests work, but are disabled for now to focus on the latency test.
   // { name: 'requestAnimationFrame', test: checkName, toCheck: 'requestAnimationFrame' },
   // { name: 'Canvas 2D', test: checkName, toCheck: 'HTMLCanvasElement' },

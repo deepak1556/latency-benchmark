@@ -25,6 +25,30 @@ self.onmessage = function(e) {
     var start = getMs();
     while (getMs() - e.data.lengthMs < start);
     self.postMessage(e.data);
+  } else if (e.data.test == 'gcLoad') {
+    var createObjects = function(n) {
+      var a = new Array(1000*n);
+      var count = 0;
+      for(var  i=0; i<g.length; i++) {
+	g[i] = {count: count++};
+      }
+
+      var generateGarbage = function() {
+	var i;
+	for(i=0; i<g.length; i++) {
+	  g[i] = {count: g[i].count * 2};
+	}
+      };
+
+      return generateGarbage;
+    };
+
+    var gen = createObjects(20);
+    var start = getMs();
+    while (getMs() - start < 1000) {
+	gen();
+    }
+    self.postMessage(e.data);
   } else {
     console.error('unknown worker message: ' + e.data.test);
   }
