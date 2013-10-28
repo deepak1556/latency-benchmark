@@ -12,12 +12,6 @@ body {
 .status {
   display: none;
 }
-tr {
-  border: none;
-  color: green;
-  font-size: 20px;
-  font-weight: bold;
-}
 </style>
 
 <h1>Web Latency Benchmark</h1>
@@ -33,28 +27,16 @@ tr {
 
 <div>
   <h4>List of Available Tests</h4>
-  <tr><td><input type="checkbox" checked="checked"> Keydown latency</td></tr>
-  <tr><td><input type="checkbox" checked="checked"> Scroll latency</td></tr>
-  <tr><td><input type="checkbox" checked="checked"> Native reference</td></tr>
-  <tr><td><input type="checkbox" checked="checked"> Baseline jank</td></tr>
-  <tr><td><input type="checkbox" checked="checked"> Javascript jank</td></tr>
-  <tr><td><input type="checkbox" checked="checked"> Image loading jank</td></tr>
-  <tr><td><input type="checkbox" checked="checked"> Worker GC Load</td></tr>
+  <ul>
+    <li>1. Keydown latency</li>
+    <li>2. Scroll latency</li>
+    <li>3. Native reference</li>
+    <li>4. Baseline jank</li>>
+    <li>5. Javascript jank</li>
+    <li>6. Image loading jank</li>
+    <li>7. Worker GC Load</li>
+  </ul>
 </div>
 
 
 <script src="keep-server-alive.js"></script>
-<script src="jquery.js"></script>
-<script src="lswrapper.js"></script>
-<script>
-  window.onload = local.clear();
-  $("input").click(function() {
-    var self = $(this);
-    var value = self.parent().text();
-    if (self.attr("checked") == true) {
-      local.del(value);
-    } else {
-      local.set(value); //sets if test is not to be included
-    }
-  });
-</script>

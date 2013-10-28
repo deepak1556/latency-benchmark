@@ -72,6 +72,19 @@ var preventContextMenuAndSelection = function(e) {
   return false;
 }
 
+var parseUrl = function(q) {
+  var exp = q.substr(q.indexOf("=") + 1, q.length);
+  return exp.split(exp.match(/\D/));
+};
+
+var genArray = function(range) {
+  var arr = new Array();
+  for(var i = 0; i < range; i++) {
+    arr[i] = i+1;
+  }
+
+  return arr;
+}
 
 var addEvents = function() {
   document.addEventListener('keydown', preventContextMenuAndSelection);
@@ -491,13 +504,15 @@ var tests = [
   // { name: 'Worker GC doesn\'t affect main page', test: testJank, blocker: workerGCLoad },
   ];
 
-var newLength = 0, newTests = [];
+if(window.location.search) {
+  var testIndexes = parseUrl(window.location.search);
+}
 
-for (var i = 0; i < tests.length; i++) {
-  var test = tests[i];
-  if (!local.get(" "+test.name)) {
-    newTests[newLength] = test;
-    newLength++;
+var testList = testIndexes || genArr(tests.length);
+
+for (var i = 0; i < testList.length; i++) {
+  if(testList[i] <= tests.length) { 
+    var test = tests[testList[i]-1];
     var row = document.createElement('tr');
     var nameCell = document.createElement('td');
     var resultCell = document.createElement('td');
@@ -519,6 +534,8 @@ for (var i = 0; i < tests.length; i++) {
     row.appendChild(resultCell);
     row.appendChild(infoCell);
     table.appendChild(row);
+  } else {
+    document.getElementById("progressMessage").textContent = "Error: test index "+ testList[i] +" out of range.";
   }
 }
 
@@ -532,13 +549,13 @@ var runNextTest = function(previousTest) {
       return;
     }
     previousTest.finished = true;
-    if (previousTest != newTests[nextTestIndex - 1]) {
+    if (previousTest != tests[testList[nextTestIndex - 1]-1]) {
       previousTest.infoCell.textContent = "Error: test sent results out of order";
       return;
     }
   }
   var testIndex = nextTestIndex++;
-  if (testIndex >= newTests.length) {
+  if (testIndex >= testList.length) {
     // All tests successfully completed. Report the overall score as a number out of 10.
     var scoreRatio = totalScore / totalPossibleScore;
     var score = document.getElementById('score');
@@ -551,7 +568,7 @@ var runNextTest = function(previousTest) {
     // End the test run.
     return;
   }
-  var test = newTests[testIndex];
+  var test = tests[testList[testIndex]-1];
   test.infoCell.textContent = '';
   test.resultCell.textContent = '⋯';
   setTimeout(function() { checkTimeout(test); }, 50000);
